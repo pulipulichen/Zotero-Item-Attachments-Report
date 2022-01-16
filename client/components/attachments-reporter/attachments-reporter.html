@@ -1,0 +1,228 @@
+<form class="ui form segment">
+  
+  <h3 class="ui horizontal divider header">
+    Data
+  </h3>
+  
+  <div class="three fields">
+    <div class="field">
+      <label>
+        Spreadsheet Link
+        (<a href="https://docs.google.com/spreadsheets/d/1TNaU8EFZPHUdp5WycfWUXgUIVUtyuEvueIreI89xSWA/edit#gid=0" target="doc">private setting</a>)
+      </label>
+      <div class="ui action input">
+        <input type="url" placeholder="" v-model="spreadsheetURL" />
+        <button class="ui button" type="button"
+                v-bind:class="{disabled: isOpenSpreadsheetDisabled}"
+                v-on:click="openSpreadsheetURL">Open</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Zotero Link</label>
+      <div class="ui action input">
+        <input type="url" placeholder="" v-model="zoteroURL" />
+        <button class="ui button" type="button"
+                v-bind:class="{disabled: isOpenZoteroDisabled}"
+                v-on:click="openZoteroURL">Open</button>
+      </div>
+    </div>
+    
+    <div class="field">
+      <label>Added Tag</label>
+      <div class="ui action input">
+        <input type="url" placeholder="" v-model="zoteroAddedTag" />
+        <button class="ui button" type="button"
+                v-bind:class="{disabled: (zoteroAddedTag === '')}"
+                v-on:click="copyZoteroAddedTag">Copy</button>
+      </div>
+    </div>
+  </div>
+  
+    
+  
+  <h3 class="ui horizontal divider header">
+    Input
+  </h3>
+  
+  <div class="field">
+    <label>Zotero User ID</label>
+    <input type="text" placeholder="" v-model="zoteroUserID"
+           onfocus="this.select()" />
+  </div>
+  
+  <div class="field">
+    <label>Zotero SQLite Path</label>
+    <input type="text" placeholder="" v-model="sqlitePath"
+           onfocus="this.select()" />
+  </div>
+  
+  <div class="three fields">
+    <div class="field">
+      <label class="highlight">
+        Item Title
+      </label>
+      <div class="ui input">
+        <input type="text" placeholder="" v-model="itemTitle"
+               onfocus="this.select()"
+               class="highlight-input"
+               v-on:change="attachmentRows = attachmentRows.slice(0,0); itemID = ''" />
+      </div>
+      <!--
+      <div class="ui action input">
+        <input type="text" placeholder="" v-model="itemTitle"
+               onfocus="this.select()">
+        <button type="button"
+                class="ui button"
+                v-bind:class="{disabled: (itemTitle === '' || zoteroUserID === '')}"
+          v-on:click="searchItem">
+          <i class="search icon"></i>
+        </button>
+      </div>
+      -->
+        
+    </div>
+    <div class="field">
+      <label>Item ID</label>
+      <div class="ui input">
+        <input type="text" placeholder="" v-model="itemID"
+               onfocus="this.select()"
+               v-on:change="attachmentRows = attachmentRows.slice(0,0); itemTitle = ''" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Tag</label>
+      <div class="ui input">
+        <input type="text" placeholder="" v-model="tag"
+               onfocus="this.select()" />
+      </div>
+    </div>
+  </div>
+    
+  <div class="field">
+    <label>
+      Filter Types
+    </label>
+    <textarea v-model="typeFilterText"></textarea>
+    
+  </div>
+  
+  <div class="field">
+    <button class="ui fluid button"
+              type="button"
+              v-on:click="getAttachments"
+              v-bind:class="{disabled: ((itemID === '' && itemTitle === '') || sqlitePath === '')}"
+              v-if="isLoading === false">
+      GET ATTACHMENTS
+    </button>
+    <button class="ui fluid disabled button"
+            type="button"
+            v-if="isLoading">
+      LOADING
+    </button>
+  </div>
+  
+  
+  <!-- =========================================================================== -->
+  
+  <template v-if="attachmentRows.length > 0">
+    <h3 class="ui horizontal divider header">
+      Output
+    </h3>
+
+    <h4>
+      Step 1. Copy attachments to Chapter sheet and get the links of item files.
+    </h4>
+    
+    <div class="field">
+      <label>
+        Attachments
+      </label>
+      <textarea v-html="attachmentsText"
+                onfocus="this.select()"
+                class="bottom attached"></textarea>
+      <div class="ui fluid bottom attached buttons"
+           v-bind:class="{disabled: (attachmentRows.length === 0)}">
+        <button type="button" 
+                class="ui button"
+                ref="CopyAttachmentsTextButton"
+                v-on:click="copyAttachmentsText"
+                v-bind:class="{disabled: (attachmentRows.length === 0)}">
+          COPY
+        </button>
+        <button type="button" 
+                class="ui button"
+                v-on:click="openLinks"
+                v-bind:class="{disabled: (attachmentRows.length === 0)}">
+          OPEN LINKS
+        </button>
+      </div>
+    </div>
+    
+    <div class="ui segment">
+      <h2>
+        Share link instruction
+      </h2>
+      
+      <p>
+      When you open the links below, you will open Google Drive with searching the item key separately. 
+      You can use <a href="https://github.com/pulipulichen/Electron-Zotero-Item-Attachments-Report/blob/main/documentation/google-drive-zotero.js" target="google-drive-zotero">this script</a> to enter from the directory to the item file:
+      </p>
+      <p>
+        Next, you should get the shared links from item files on Google Drive. 
+        Please set the permission of the link to <u><strong>"anyone with link"</strong></u> if you want to see the thumbnails of item file in APP Sheet.
+      </p>
+      
+    </div>
+    
+    <hr />
+    
+    <h4>
+      Step 2. Set the cover of book and copy the book information to Book sheet.
+    </h4>
+    
+    <div class="field">
+      <label>
+        Cover
+        (accept a shared link from Google Drive with permission from "anyone with link")
+      </label>
+      <div class="ui action input">
+        <input type="url" placeholder="" v-model="coverURL" />
+        <button class="ui button" type="button"
+                v-bind:class="{disabled: isCopyCoverThumbnailDisabled}"
+                v-on:click="copyCoverThumbnail">Copy Thumbnail</button>
+      </div>
+    </div>
+    
+    <div class="field">
+      <label>Book Key</label>
+      <div class="ui input"
+           v-bind:class="{error: bookKey > 1}">
+        <input type="text" placeholder="" v-model="bookKey.join(',')"
+               onfocus="this.select()" />
+      </div>
+
+      <template v-if="(bookText.length > 0 && itemID !== '')">
+        <textarea v-html="bookText"
+                  onfocus="this.select()"
+                  class="book-text"></textarea>
+        <div class="ui fluid bottom attached buttons"
+             v-bind:class="{disabled: (bookText.length === 0 || itemID === '')}">
+          <button type="button" 
+                  class="ui button"
+                  v-on:click="copyBookText"
+                  v-bind:class="{disabled: (bookText.length === 0 || itemID === '')}">
+            COPY
+          </button>
+          <button type="button" 
+                  class="ui button"
+                  v-on:click="openSearchCover"
+                  v-bind:class="{disabled: (bookText.length === 0 || itemID === '')}">
+            SEARCH COVER
+          </button>
+        </div>
+      </template>
+    </div>
+
+  </template>
+</form>

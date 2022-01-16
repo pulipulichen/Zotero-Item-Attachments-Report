@@ -1,0 +1,19 @@
+{
+  "name": "zotero-item-attachments-report",
+  "version": "1.0.0",
+  "description": "Generate a report of a Zotero item's attachments.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pulipulichen/Zotero-Item-Attachments-Report.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pulipulichen/Zotero-Item-Attachments-Report/issues"
+  },
+  "homepage": "https://github.com/pulipulichen/Zotero-Item-Attachments-Report#readme"
+}
